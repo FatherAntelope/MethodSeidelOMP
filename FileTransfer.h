@@ -3,6 +3,7 @@
 //
 #include <iostream>
 #include <fstream>
+#include <iomanip>
 #include <string>
 #include <sstream>
 
@@ -18,9 +19,9 @@ class FileTransfer {
         this->filePath = filePath;
     }
 
-    public: void initData(int & N, double & epsilon, double ** &A, double * &B) {
+    public: void initData(int & N, double & epsilon, double ** &A, double * &B, string fileName) {
         string textLine;
-        ifstream init(filePath);
+        ifstream init(filePath + fileName);
 
         if (init.is_open()) {
             int lineNumber = 0;
@@ -51,8 +52,20 @@ class FileTransfer {
         }
     }
 
-    public: void outData(string nameFileOut, double * numberIterations, double solutionApproximate, time_t timeJob) {
+    public: void outData(double * numberIterations, int N,  int countApproximate, double * times, string fileName) {
 
+        ofstream out;
+        out.open(filePath + fileName);
+        if(out.is_open()) {
+            out << countApproximate << endl;
+            for(int i = 0; i < N; i++) {
+                out << fixed << setprecision(5) << numberIterations[i] << " ";
+            }
+            out << endl;
+            for (int i = 0; i < 4; ++i) {
+                out << setprecision(5) << times[i] << " ";
+            }
+        }
     }
 };
 
