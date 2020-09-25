@@ -2,8 +2,7 @@
 // Created by gorbu on 12.09.2020.
 //
 #include <iostream>
-#include <iomanip>
-#include <vector>
+#include <cmath>
 #include "omp.h"
 
 
@@ -22,7 +21,7 @@ public: MethodSeidel() {
 
 }
 
-
+//Не используется
 public: double Sum1(int i, double ** A, double * X) {
         double sum = 0;
         for(int j = 1; j < i - 1; j++)
@@ -30,6 +29,7 @@ public: double Sum1(int i, double ** A, double * X) {
         return sum;
 }
 
+//Не используется
 public: double Sum2(int m, int i, double ** A, double * X) {
         double sum = 0;
         for(int j = i + 1; j < m; j++)
@@ -37,6 +37,7 @@ public: double Sum2(int m, int i, double ** A, double * X) {
         return sum;
     }
 
+    //Не используется
 public: double * initial(int N, double **A, double *B) {
         double * X = new double [N] ;
         for (int i = 0; i < N; ++i) {
@@ -46,7 +47,7 @@ public: double * initial(int N, double **A, double *B) {
 }
 
 
-
+//Алгоритм
 public: double * buildingInitialSystemX(double** A, double* B, double epsilon, int N, int countThreads) {
         double norm = 0.0;
         countIterations = 0;
@@ -54,6 +55,7 @@ public: double * buildingInitialSystemX(double** A, double* B, double epsilon, i
         for (int i = 0; i < N; i++) {
             X[i] = 1;
         }
+
         time = omp_get_wtime();
         do
         {
@@ -62,24 +64,23 @@ public: double * buildingInitialSystemX(double** A, double* B, double epsilon, i
             for (int i = 0; i < N; i++)
             {
                 double diff = -X[i];
-                double sum = X[i] = B[i];
-#pragma omp parallel for default(none) shared(X, A, N, i) reduction(+:sum) schedule(static, 50) num_threads(countThreads)
+                double sum = 0;
+#pragma omp parallel for shared(X, A, N, i) reduction(+:sum) num_threads(countThreads)
                 for (int j = 0; j < N; j++)
-                    if (j != i) sum -= A[i][j] * X[j];
-                X[i] = sum / A[i][i];
+                    if (j != i) sum += A[i][j] * X[j];
+                X[i] = (B[i] - sum) / A[i][i];
                 diff += X[i];
                 norm += diff * diff;
             }
-            //cout << setprecision(7) << "Norm(" << countIterations << "): " << norm << endl;
+
         } while (sqrt(norm) >= epsilon);
         time = omp_get_wtime() - time;
-        //Sleep(5000);
         return X;
     }
 
 
 
-// don't used
+//Не используется
 public: int partition(double* arr, int start, int end) {
         double pivot = arr[end];
         int pIndex = start;
@@ -106,19 +107,6 @@ public: double * quicksort(double* arr, int low_index, int high_index) {
         return arr;
     }
 
-// don't used
-public: double ** diagonalSort(vector<vector<double>>& mat) {
-        int m = mat.size(), n = mat[0].size();
-        for (int j = 0; j < m; j++) {
-            for (int i = 0; i < m - 1; i++) {
-                for (int k = 0; k < n - 1; k++) {
-                    if (mat[i][k] > mat[i + 1][k + 1])
-                        swap(mat[i][k], mat[i + 1][k + 1]);
-                }
-            }
-        }
-        return nullptr;
-    }
 
 };
 
